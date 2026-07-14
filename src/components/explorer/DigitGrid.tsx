@@ -102,12 +102,21 @@ export default function DigitGrid({
                     ).some(Boolean)
                   : false;
 
+                const tooltipAnchorClass =
+                  chunkIdx === 0
+                    ? "left-0 translate-x-0"
+                    : chunkIdx === row.length - 1
+                      ? "left-auto right-0 translate-x-0"
+                      : "left-1/2 -translate-x-1/2";
+
                 return (
                   <span
                     key={chunkIdx}
                     className={`
                       font-mono text-base sm:text-lg tracking-[0.2em] cursor-pointer
                       rounded px-1.5 py-0.5 transition-all duration-150 select-text relative
+                      active:bg-secondary active:text-foreground
+                      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring
                       ${hasSearchMatch
                         ? "bg-primary/20 text-primary"
                         : isHovered
@@ -117,9 +126,13 @@ export default function DigitGrid({
                             : "text-foreground/65"
                       }
                     `}
+                    tabIndex={0}
                     onMouseEnter={() => setHoveredChunk(globalChunkIdx)}
                     onMouseLeave={() => setHoveredChunk(null)}
+                    onTouchStart={() => { setHoveredChunk(globalChunkIdx); setHoveredRow(rowIdx); }}
+                    onTouchEnd={() => { setHoveredChunk(null); setHoveredRow(null); }}
                     onClick={() => handleCopyChunk(globalChunkIdx, chunk)}
+                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleCopyChunk(globalChunkIdx, chunk); } }}
                     title={`Digits ${chunkStartDigit + 1}–${chunkStartDigit + chunk.length}`}
                   >
                     {chunk.split("").map((d, dIdx) => {
@@ -140,7 +153,7 @@ export default function DigitGrid({
                       );
                     })}
                     {isCopied && (
-                      <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs text-primary flex items-center gap-0.5">
+                      <span className={`absolute -top-6 ${tooltipAnchorClass} text-xs text-primary flex items-center gap-0.5 whitespace-nowrap`}>
                         <Check className="w-3 h-3" /> copied
                       </span>
                     )}

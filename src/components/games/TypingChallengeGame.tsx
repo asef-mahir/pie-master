@@ -88,6 +88,9 @@ export default function TypingChallengeGame() {
               onChange={(e) => handleInput(e.target.value)}
               className="opacity-0 absolute pointer-events-auto w-0 h-0"
               autoComplete="off"
+              inputMode="numeric"
+              autoCapitalize="off"
+              autoCorrect="off"
             />
             {/* Click area to refocus */}
             <button onClick={() => inputRef.current?.focus()} className="w-full text-center text-xs text-muted-foreground/50 py-2">

@@ -122,6 +122,9 @@ export default function Benchmark() {
                   placeholder="Start typing..."
                   autoComplete="off"
                   spellCheck={false}
+                  inputMode="numeric"
+                  autoCapitalize="off"
+                  autoCorrect="off"
                 />
               </div>
             </div>

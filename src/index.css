@@ -64,11 +64,11 @@
 
 @layer components {
   .glass {
-    @apply bg-card/60 backdrop-blur-xl border border-border/50 shadow-lg;
+    @apply bg-card/60 backdrop-blur-md sm:backdrop-blur-xl border border-border/50 shadow-lg;
   }
 
   .glass-strong {
-    @apply bg-card/80 backdrop-blur-2xl border border-border/60 shadow-xl;
+    @apply bg-card/80 backdrop-blur-md sm:backdrop-blur-2xl border border-border/60 shadow-xl;
   }
 
   .glow-primary {

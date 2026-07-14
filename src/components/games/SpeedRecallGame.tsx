@@ -83,6 +83,9 @@ export default function SpeedRecallGame() {
                 placeholder="..."
                 autoComplete="off"
                 maxLength={digitCount}
+                inputMode="numeric"
+                autoCapitalize="off"
+                autoCorrect="off"
               />
             </div>
             <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={check} className="w-full py-3 rounded-xl bg-gradient-to-r from-primary to-accent font-semibold text-primary-foreground">

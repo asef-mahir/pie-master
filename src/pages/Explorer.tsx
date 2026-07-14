@@ -50,6 +50,9 @@ export default function Explorer() {
               value={search}
               onChange={(e) => setSearch(e.target.value.replace(/[^0-9]/g, ""))}
               className="pl-10 glass border-border/50 font-mono"
+              inputMode="numeric"
+              autoCapitalize="off"
+              autoCorrect="off"
             />
             {search && (
               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
@@ -114,17 +117,18 @@ export default function Explorer() {
             <button
               onClick={() => setFocusRow(Math.max(0, focusRow - 1))}
               disabled={focusRow === 0}
-              className="p-1.5 rounded-lg hover:bg-secondary disabled:opacity-30 transition-colors"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg hover:bg-secondary disabled:opacity-30 transition-colors shrink-0"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
-            <span className="text-sm text-muted-foreground font-mono">
-              Row {focusRow + 1} of {totalRows} — Digits {focusRow * digitsPerRow + 1}–{Math.min((focusRow + 1) * digitsPerRow, visibleCount)}
+            <span className="text-xs sm:text-sm text-muted-foreground font-mono whitespace-nowrap px-1">
+              <span className="sm:hidden">Row {focusRow + 1}/{totalRows} · {focusRow * digitsPerRow + 1}–{Math.min((focusRow + 1) * digitsPerRow, visibleCount)}</span>
+              <span className="hidden sm:inline">Row {focusRow + 1} of {totalRows} — Digits {focusRow * digitsPerRow + 1}–{Math.min((focusRow + 1) * digitsPerRow, visibleCount)}</span>
             </span>
             <button
               onClick={() => setFocusRow(Math.min(totalRows - 1, focusRow + 1))}
               disabled={focusRow >= totalRows - 1}
-              className="p-1.5 rounded-lg hover:bg-secondary disabled:opacity-30 transition-colors"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg hover:bg-secondary disabled:opacity-30 transition-colors shrink-0"
             >
               <ChevronRight className="w-5 h-5" />
             </button>

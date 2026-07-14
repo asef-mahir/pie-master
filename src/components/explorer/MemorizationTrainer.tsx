@@ -124,6 +124,9 @@ export default function MemorizationTrainer({ chunkSize }: MemorizationTrainerPr
               placeholder="..."
               autoComplete="off"
               maxLength={digitCount}
+              inputMode="numeric"
+              autoCapitalize="off"
+              autoCorrect="off"
             />
             <motion.button
               whileHover={{ scale: 1.02 }}

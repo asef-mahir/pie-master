@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Eye, GraduationCap, Gamepad2, Trophy, BarChart3, ArrowRight } from "lucide-react";
@@ -13,6 +14,15 @@ const features = [
 
 export default function Index() {
   const piDisplay = getDigits(0, 52);
+  const [staggerEnabled, setStaggerEnabled] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const update = () => setStaggerEnabled(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
 
   return (
     <div className="min-h-screen">
@@ -74,7 +84,7 @@ export default function Index() {
                   key={i}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5 + i * 0.03 }}
+                  transition={{ delay: staggerEnabled ? 0.5 + i * 0.03 : 0.5 }}
                   className={char === "." ? "text-accent" : "hover:text-primary hover:text-glow transition-all cursor-default"}
                 >
                   {char}

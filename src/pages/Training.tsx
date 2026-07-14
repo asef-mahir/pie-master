@@ -112,6 +112,9 @@ export default function Training() {
                     className="flex-1 bg-transparent outline-none text-primary tracking-[0.2em] placeholder:text-muted-foreground/30"
                     placeholder="Type digits..."
                     autoComplete="off"
+                    inputMode="numeric"
+                    autoCapitalize="off"
+                    autoCorrect="off"
                   />
                 </div>
                 <p className="text-xs text-muted-foreground mt-3">{input.length} / {level!.digits} digits entered</p>
