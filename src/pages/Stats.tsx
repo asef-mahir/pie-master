@@ -3,18 +3,25 @@ import { BarChart3, Trophy, Flame, Target, ListChecks, Eye, GraduationCap, Gamep
 import { getBestScore, getStreak, getTotalSessions, getRecentSessions, type GameKind } from "@/lib/history";
 import ActivityHeatmap from "@/components/stats/ActivityHeatmap";
 
-const GAME_META: Record<GameKind, { label: string; icon: typeof Trophy; suffix: string }> = {
-  benchmark: { label: "Benchmark", icon: Trophy, suffix: " digits" },
-  typing: { label: "Pi Typing", icon: Keyboard, suffix: " pts" },
-  missing: { label: "Missing Digit", icon: Gamepad2, suffix: "" },
-  speed: { label: "Speed Recall", icon: Zap, suffix: " correct" },
-  training: { label: "Training", icon: GraduationCap, suffix: " correct" },
-  "explorer-trainer": { label: "Explorer Trainer", icon: Eye, suffix: " correct" },
+const GAME_META: Record<GameKind, { label: string; icon: typeof Trophy }> = {
+  benchmark: { label: "Benchmark", icon: Trophy },
+  typing: { label: "Pi Typing", icon: Keyboard },
+  missing: { label: "Missing Digit", icon: Gamepad2 },
+  speed: { label: "Speed Recall", icon: Zap },
+  training: { label: "Training", icon: GraduationCap },
+  "explorer-trainer": { label: "Explorer Trainer", icon: Eye },
 };
 
 function formatSessionDate(timestamp: number): string {
   const d = new Date(timestamp);
   return d.toLocaleDateString(undefined, { month: "short", day: "numeric" }) + " · " + d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+}
+
+function accuracyColor(pct: number): string {
+  if (pct >= 90) return "text-success";
+  if (pct >= 70) return "text-primary";
+  if (pct >= 50) return "text-amber-400";
+  return "text-destructive";
 }
 
 export default function Stats() {
@@ -76,16 +83,22 @@ export default function Stats() {
               <div className="space-y-1">
                 {recentSessions.map((r) => {
                   const meta = GAME_META[r.game];
+                  const correct = r.correct ?? r.score;
+                  const total = r.total ?? correct;
+                  const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
                   return (
-                    <div key={r.id} className="flex items-center justify-between py-2 px-2 rounded-lg hover:bg-secondary/40 transition-colors">
-                      <div className="flex items-center gap-3">
+                    <div key={r.id} className="flex items-center justify-between py-2 px-2 rounded-lg hover:bg-secondary/40 transition-colors gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
                         <meta.icon className="w-4 h-4 text-muted-foreground shrink-0" />
-                        <span className="text-sm font-medium">{meta.label}</span>
-                        <span className="text-xs text-muted-foreground hidden sm:inline">{formatSessionDate(r.timestamp)}</span>
+                        <span className="text-sm font-medium truncate">{meta.label}</span>
+                        <span className="text-xs text-muted-foreground hidden sm:inline shrink-0">{formatSessionDate(r.timestamp)}</span>
                       </div>
-                      <span className="digit-font text-sm text-primary font-bold">
-                        {r.score}{meta.suffix}
-                      </span>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className="digit-font text-sm text-primary font-bold">
+                          {correct}/{total}
+                        </span>
+                        <span className={`text-xs font-mono ${accuracyColor(accuracy)}`}>{accuracy}%</span>
+                      </div>
                     </div>
                   );
                 })}

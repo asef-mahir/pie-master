@@ -31,7 +31,7 @@ export default function TypingChallengeGame() {
       const score = calculateScore(v.correctCount, elapsed);
       setCorrectCount(v.correctCount);
       setFinalScore(score);
-      logSession({ game: "typing", score, correct: v.correctCount });
+      logSession({ game: "typing", score, correct: v.correctCount, total: v.correctCount + 1 });
       if (score > bestScore) setBestScore(score);
       setState("done");
       return;

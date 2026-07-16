@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, X, RotateCcw } from "lucide-react";
+import { toast } from "sonner";
 import { getRawDigits, validateInput, TRAINING_LEVELS } from "@/lib/pi-engine";
 import { logSession } from "@/lib/history";
 
@@ -20,6 +21,14 @@ export default function Training() {
     setResult(null);
     setTimeout(() => inputRef.current?.focus(), 100);
   }, []);
+
+  const handleRecallInput = useCallback((raw: string) => {
+    const clean = raw.replace(/[^0-9]/g, "");
+    if (clean.length > level!.digits && input.length >= level!.digits) {
+      toast.info(`You've reached ${level!.digits} digits`, { id: "training-max-digits" });
+    }
+    setInput(clean.slice(0, level!.digits));
+  }, [level, input.length]);
 
   const checkAnswer = useCallback(() => {
     const v = validateInput(input);
@@ -109,14 +118,15 @@ export default function Training() {
                   <input
                     ref={inputRef}
                     value={input}
-                    onChange={(e) => setInput(e.target.value.replace(/[^0-9]/g, ""))}
+                    onChange={(e) => handleRecallInput(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && checkAnswer()}
-                    className="flex-1 bg-transparent outline-none text-primary tracking-[0.2em] placeholder:text-muted-foreground/30"
+                    className="flex-1 min-w-0 bg-transparent outline-none text-primary tracking-[0.2em] placeholder:text-muted-foreground/30"
                     placeholder="Type digits..."
                     autoComplete="off"
                     inputMode="numeric"
                     autoCapitalize="off"
                     autoCorrect="off"
+                    maxLength={level!.digits}
                   />
                 </div>
                 <p className="text-xs text-muted-foreground mt-3">{input.length} / {level!.digits} digits entered</p>

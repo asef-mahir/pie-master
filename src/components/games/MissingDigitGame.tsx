@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Check, X, ArrowRight } from "lucide-react";
 import { generateMissingDigitQuestion, TOTAL_AVAILABLE_DIGITS } from "@/lib/pi-engine";
@@ -7,12 +7,24 @@ import RangeControl from "./RangeControl";
 
 const MIN_RANGE = 5;
 const DEFAULT_RANGE = { from: 1, to: 100 };
+const LOG_BATCH_SIZE = 10;
 
 export default function MissingDigitGame() {
   const [range, setRange] = useState(DEFAULT_RANGE);
   const [question, setQuestion] = useState(() => generateMissingDigitQuestion(DEFAULT_RANGE.from, DEFAULT_RANGE.to));
   const [selected, setSelected] = useState<string | null>(null);
   const [score, setScore] = useState({ correct: 0, total: 0 });
+  const pendingRef = useRef({ correct: 0, total: 0 });
+
+  const flushPending = useCallback(() => {
+    const { correct, total } = pendingRef.current;
+    if (total > 0) {
+      logSession({ game: "missing", score: correct, correct, total });
+      pendingRef.current = { correct: 0, total: 0 };
+    }
+  }, []);
+
+  useEffect(() => () => flushPending(), [flushPending]);
 
   const handleSelect = useCallback((digit: string) => {
     if (selected !== null) return;
@@ -22,8 +34,12 @@ export default function MissingDigitGame() {
       correct: s.correct + (isCorrect ? 1 : 0),
       total: s.total + 1,
     }));
-    logSession({ game: "missing", score: isCorrect ? 1 : 0, correct: isCorrect ? 1 : 0, total: 1 });
-  }, [selected, question]);
+    pendingRef.current = {
+      correct: pendingRef.current.correct + (isCorrect ? 1 : 0),
+      total: pendingRef.current.total + 1,
+    };
+    if (pendingRef.current.total >= LOG_BATCH_SIZE) flushPending();
+  }, [selected, question, flushPending]);
 
   const next = useCallback(() => {
     setQuestion(generateMissingDigitQuestion(range.from, range.to));

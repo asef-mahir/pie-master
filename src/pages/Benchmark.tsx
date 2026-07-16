@@ -30,28 +30,28 @@ export default function Benchmark() {
     const clean = value.replace(/[^0-9]/g, "");
     const v = validateInput(clean);
     if (!v.correct) {
-      finish(v.correctCount);
+      finish(v.correctCount, true);
       return;
     }
     setInput(clean);
     setCorrectCount(v.correctCount);
   }, []);
 
-  const finish = useCallback((digits: number) => {
+  const finish = useCallback((digits: number, hadMistake: boolean) => {
     clearInterval(timerRef.current);
     const el = Date.now() - startTime;
     setElapsed(el);
     setCorrectCount(digits);
     const s = calculateScore(digits, el);
     setScore(s);
-    logSession({ game: "benchmark", score: digits });
+    logSession({ game: "benchmark", score: digits, correct: digits, total: digits + (hadMistake ? 1 : 0) });
     if (digits > bestDigits) setBestDigits(digits);
     setState("done");
   }, [startTime, bestDigits]);
 
   const submitManual = useCallback(() => {
     const v = validateInput(input);
-    finish(v.correctCount);
+    finish(v.correctCount, false);
   }, [input, finish]);
 
   useEffect(() => () => clearInterval(timerRef.current), []);
@@ -117,7 +117,7 @@ export default function Benchmark() {
                   ref={inputRef}
                   value={input}
                   onChange={(e) => handleInput(e.target.value)}
-                  className="flex-1 bg-transparent outline-none text-primary tracking-[0.15em] resize-none min-h-[120px] leading-relaxed"
+                  className="flex-1 min-w-0 bg-transparent outline-none text-primary tracking-[0.15em] resize-none min-h-[120px] leading-relaxed break-all"
                   placeholder="Start typing..."
                   autoComplete="off"
                   spellCheck={false}
