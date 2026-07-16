@@ -1,11 +1,15 @@
 import { useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { getRawDigits, validateInput } from "@/lib/pi-engine";
+import { getRawDigits, validateInput, TOTAL_AVAILABLE_DIGITS } from "@/lib/pi-engine";
 import { Check, X, RotateCcw, Play } from "lucide-react";
+import RangeControl from "./RangeControl";
+
+const DEFAULT_RANGE = { from: 1, to: 100 };
 
 export default function SpeedRecallGame() {
   const [state, setState] = useState<"idle" | "show" | "recall" | "result">("idle");
   const [digitCount, setDigitCount] = useState(5);
+  const [range, setRange] = useState(DEFAULT_RANGE);
   const [startPos, setStartPos] = useState(0);
   const [input, setInput] = useState("");
   const [result, setResult] = useState<{ correct: boolean; count: number } | null>(null);
@@ -14,7 +18,10 @@ export default function SpeedRecallGame() {
   const digits = getRawDigits(startPos, digitCount);
 
   const startRound = useCallback(() => {
-    const pos = Math.floor(Math.random() * 50);
+    const fromIdx = range.from - 1;
+    const toIdx = range.to - 1;
+    const maxStartIdx = Math.max(fromIdx, toIdx - digitCount + 1);
+    const pos = fromIdx + Math.floor(Math.random() * (maxStartIdx - fromIdx + 1));
     setStartPos(pos);
     setInput("");
     setResult(null);
@@ -23,7 +30,21 @@ export default function SpeedRecallGame() {
       setState("recall");
       setTimeout(() => inputRef.current?.focus(), 100);
     }, 2000 + digitCount * 300);
-  }, [digitCount]);
+  }, [digitCount, range]);
+
+  const handleDigitCountChange = useCallback((n: number) => {
+    setDigitCount(n);
+    setState("idle");
+    setRange((r) => {
+      if (r.to - r.from + 1 >= n) return r;
+      return { from: r.from, to: Math.min(TOTAL_AVAILABLE_DIGITS, r.from + n - 1) };
+    });
+  }, []);
+
+  const applyRange = useCallback((from: number, to: number) => {
+    setRange({ from, to });
+    setState("idle");
+  }, []);
 
   const check = useCallback(() => {
     const v = validateInput(input, startPos);
@@ -33,18 +54,21 @@ export default function SpeedRecallGame() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-start justify-between mb-6 gap-3 flex-wrap">
         <h2 className="text-2xl font-bold">Speed Recall</h2>
-        <div className="flex gap-2">
-          {[5, 8, 12].map((n) => (
-            <button
-              key={n}
-              onClick={() => { setDigitCount(n); setState("idle"); }}
-              className={`digit-font text-sm px-3 py-1 rounded-lg ${n === digitCount ? "bg-primary/20 text-primary" : "glass text-muted-foreground"}`}
-            >
-              {n}
-            </button>
-          ))}
+        <div className="flex flex-col items-end gap-1.5">
+          <div className="flex gap-2">
+            {[5, 8, 12].map((n) => (
+              <button
+                key={n}
+                onClick={() => handleDigitCountChange(n)}
+                className={`digit-font text-sm px-3 py-1 rounded-lg ${n === digitCount ? "bg-primary/20 text-primary" : "glass text-muted-foreground"}`}
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+          <RangeControl from={range.from} to={range.to} minRange={digitCount} maxDigits={TOTAL_AVAILABLE_DIGITS} onApply={applyRange} />
         </div>
       </div>
 

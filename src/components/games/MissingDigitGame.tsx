@@ -1,10 +1,15 @@
 import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Check, X, ArrowRight } from "lucide-react";
-import { generateMissingDigitQuestion } from "@/lib/pi-engine";
+import { generateMissingDigitQuestion, TOTAL_AVAILABLE_DIGITS } from "@/lib/pi-engine";
+import RangeControl from "./RangeControl";
+
+const MIN_RANGE = 5;
+const DEFAULT_RANGE = { from: 1, to: 100 };
 
 export default function MissingDigitGame() {
-  const [question, setQuestion] = useState(() => generateMissingDigitQuestion(50));
+  const [range, setRange] = useState(DEFAULT_RANGE);
+  const [question, setQuestion] = useState(() => generateMissingDigitQuestion(DEFAULT_RANGE.from, DEFAULT_RANGE.to));
   const [selected, setSelected] = useState<string | null>(null);
   const [score, setScore] = useState({ correct: 0, total: 0 });
 
@@ -18,7 +23,13 @@ export default function MissingDigitGame() {
   }, [selected, question]);
 
   const next = useCallback(() => {
-    setQuestion(generateMissingDigitQuestion(50));
+    setQuestion(generateMissingDigitQuestion(range.from, range.to));
+    setSelected(null);
+  }, [range]);
+
+  const applyRange = useCallback((from: number, to: number) => {
+    setRange({ from, to });
+    setQuestion(generateMissingDigitQuestion(from, to));
     setSelected(null);
   }, []);
 
@@ -26,11 +37,14 @@ export default function MissingDigitGame() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-start justify-between mb-6 gap-3 flex-wrap">
         <h2 className="text-2xl font-bold">Missing Digit</h2>
-        <div className="glass rounded-full px-4 py-1.5 text-sm">
-          <span className="text-primary font-mono font-bold">{score.correct}</span>
-          <span className="text-muted-foreground"> / {score.total}</span>
+        <div className="flex flex-col items-end gap-1.5">
+          <RangeControl from={range.from} to={range.to} minRange={MIN_RANGE} maxDigits={TOTAL_AVAILABLE_DIGITS} onApply={applyRange} />
+          <div className="glass rounded-full px-4 py-1.5 text-sm">
+            <span className="text-primary font-mono font-bold">{score.correct}</span>
+            <span className="text-muted-foreground"> / {score.total}</span>
+          </div>
         </div>
       </div>
 

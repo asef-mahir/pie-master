@@ -36,12 +36,15 @@ export function validateInput(input: string, startPosition: number = 0): {
   return { correct: true, correctCount, expected: PI_DIGITS[startPosition + clean.length] || "" };
 }
 
-export function generateMissingDigitQuestion(maxDigit: number = 20): {
+export function generateMissingDigitQuestion(from: number = 1, to: number = 20): {
   display: string;
   answer: string;
   position: number;
 } {
-  const pos = Math.floor(Math.random() * Math.min(maxDigit, PI_DIGITS.length));
+  const maxIdx = PI_DIGITS.length - 1;
+  const fromIdx = Math.max(0, Math.min(from - 1, maxIdx));
+  const toIdx = Math.max(fromIdx, Math.min(to - 1, maxIdx));
+  const pos = fromIdx + Math.floor(Math.random() * (toIdx - fromIdx + 1));
   const start = Math.max(0, pos - 2);
   const end = Math.min(PI_DIGITS.length, pos + 3);
   const segment = PI_DIGITS.slice(start, end);
