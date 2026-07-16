@@ -2,6 +2,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Trophy, Play, RotateCcw } from "lucide-react";
 import { validateInput, calculateScore } from "@/lib/pi-engine";
+import { logSession, getBestScore } from "@/lib/history";
 
 export default function Benchmark() {
   const [state, setState] = useState<"idle" | "running" | "done">("idle");
@@ -10,7 +11,7 @@ export default function Benchmark() {
   const [startTime, setStartTime] = useState(0);
   const [elapsed, setElapsed] = useState(0);
   const [score, setScore] = useState(0);
-  const [bestDigits, setBestDigits] = useState(() => Number(localStorage.getItem("pi-benchmark-best") || "0"));
+  const [bestDigits, setBestDigits] = useState(() => getBestScore("benchmark"));
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const timerRef = useRef<number>();
 
@@ -43,10 +44,8 @@ export default function Benchmark() {
     setCorrectCount(digits);
     const s = calculateScore(digits, el);
     setScore(s);
-    if (digits > bestDigits) {
-      setBestDigits(digits);
-      localStorage.setItem("pi-benchmark-best", String(digits));
-    }
+    logSession({ game: "benchmark", score: digits });
+    if (digits > bestDigits) setBestDigits(digits);
     setState("done");
   }, [startTime, bestDigits]);
 

@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, X, RotateCcw } from "lucide-react";
 import { getRawDigits, validateInput, TRAINING_LEVELS } from "@/lib/pi-engine";
+import { logSession } from "@/lib/history";
 
 export default function Training() {
   const [selectedLevel, setSelectedLevel] = useState<number | null>(null);
@@ -23,6 +24,7 @@ export default function Training() {
   const checkAnswer = useCallback(() => {
     const v = validateInput(input);
     setResult({ correct: v.correct && v.correctCount === targetDigits.length, count: v.correctCount });
+    logSession({ game: "training", score: v.correctCount, correct: v.correctCount, total: targetDigits.length });
     setPhase("result");
   }, [input, targetDigits]);
 

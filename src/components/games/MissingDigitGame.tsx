@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Check, X, ArrowRight } from "lucide-react";
 import { generateMissingDigitQuestion, TOTAL_AVAILABLE_DIGITS } from "@/lib/pi-engine";
+import { logSession } from "@/lib/history";
 import RangeControl from "./RangeControl";
 
 const MIN_RANGE = 5;
@@ -16,10 +17,12 @@ export default function MissingDigitGame() {
   const handleSelect = useCallback((digit: string) => {
     if (selected !== null) return;
     setSelected(digit);
+    const isCorrect = digit === question.answer;
     setScore((s) => ({
-      correct: s.correct + (digit === question.answer ? 1 : 0),
+      correct: s.correct + (isCorrect ? 1 : 0),
       total: s.total + 1,
     }));
+    logSession({ game: "missing", score: isCorrect ? 1 : 0, correct: isCorrect ? 1 : 0, total: 1 });
   }, [selected, question]);
 
   const next = useCallback(() => {

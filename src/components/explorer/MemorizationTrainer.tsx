@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getRawDigits } from "@/lib/pi-engine";
+import { logSession } from "@/lib/history";
 import { Play, Check, X, RotateCcw } from "lucide-react";
 
 interface MemorizationTrainerProps {
@@ -38,8 +39,15 @@ export default function MemorizationTrainer({ chunkSize }: MemorizationTrainerPr
   }, [showDuration]);
 
   const checkAnswer = useCallback(() => {
+    const clean = input.replace(/[^0-9]/g, "");
+    let correct = 0;
+    for (let i = 0; i < clean.length; i++) {
+      if (clean[i] === digits[i]) correct++;
+      else break;
+    }
+    logSession({ game: "explorer-trainer", score: correct, correct, total: digitCount });
     setState("result");
-  }, []);
+  }, [input, digits, digitCount]);
 
   const cleanInput = input.replace(/[^0-9]/g, "");
   const isCorrect = cleanInput === digits;

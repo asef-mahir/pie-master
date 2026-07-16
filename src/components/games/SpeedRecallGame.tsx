@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getRawDigits, validateInput, TOTAL_AVAILABLE_DIGITS } from "@/lib/pi-engine";
+import { logSession } from "@/lib/history";
 import { Check, X, RotateCcw, Play } from "lucide-react";
 import RangeControl from "./RangeControl";
 
@@ -49,6 +50,7 @@ export default function SpeedRecallGame() {
   const check = useCallback(() => {
     const v = validateInput(input, startPos);
     setResult({ correct: v.correct && v.correctCount === digitCount, count: v.correctCount });
+    logSession({ game: "speed", score: v.correctCount, correct: v.correctCount, total: digitCount });
     setState("result");
   }, [input, startPos, digitCount]);
 

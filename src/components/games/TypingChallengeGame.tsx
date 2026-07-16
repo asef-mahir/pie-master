@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Play, RotateCcw } from "lucide-react";
 import { getRawDigits, validateInput, calculateScore } from "@/lib/pi-engine";
+import { logSession, getBestScore } from "@/lib/history";
 
 export default function TypingChallengeGame() {
   const [state, setState] = useState<"idle" | "playing" | "done">("idle");
@@ -9,7 +10,7 @@ export default function TypingChallengeGame() {
   const [correctCount, setCorrectCount] = useState(0);
   const [startTime, setStartTime] = useState(0);
   const [finalScore, setFinalScore] = useState(0);
-  const [bestScore, setBestScore] = useState(() => Number(localStorage.getItem("pi-typing-best") || "0"));
+  const [bestScore, setBestScore] = useState(() => getBestScore("typing"));
   const inputRef = useRef<HTMLInputElement>(null);
 
   const expectedDigits = getRawDigits(0, 100);
@@ -30,10 +31,8 @@ export default function TypingChallengeGame() {
       const score = calculateScore(v.correctCount, elapsed);
       setCorrectCount(v.correctCount);
       setFinalScore(score);
-      if (score > bestScore) {
-        setBestScore(score);
-        localStorage.setItem("pi-typing-best", String(score));
-      }
+      logSession({ game: "typing", score, correct: v.correctCount });
+      if (score > bestScore) setBestScore(score);
       setState("done");
       return;
     }
